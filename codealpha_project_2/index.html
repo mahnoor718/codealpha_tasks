@@ -1,0 +1,547 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PhishGuard | Mahnoor</title>
+
+<style>
+:root{
+ --bg:#f4f6fc;
+ --white:#fff;
+ --navy:#172442;
+ --text:#202b45;
+ --muted:#8290a8;
+ --border:#e8ebf3;
+ --purple:#8065e9;
+ --blue:#4388ed;
+ --cyan:#27bfc6;
+ --pink:#e875a8;
+ --orange:#f3a64b;
+ --green:#25b88a;
+ --red:#e76876;
+ --shadow:0 8px 28px rgba(34,48,85,.07);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text)}
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+.app{min-height:100vh}
+.sidebar{
+ position:fixed;left:0;top:0;bottom:0;width:250px;
+ background:linear-gradient(165deg,#202c50,#30245b 65%,#263c69);
+ color:white;padding:25px 17px;display:flex;flex-direction:column;
+ z-index:10;transition:.25s
+}
+.brand{display:flex;gap:12px;align-items:center;padding:0 8px 32px}
+.logo{
+ width:44px;height:44px;border-radius:14px;
+ background:linear-gradient(135deg,#43c6d8,#8270f3);
+ display:grid;place-items:center;font-size:23px;font-weight:800;
+ box-shadow:0 5px 18px #4e77d566
+}
+.brand h2{font-size:19px;letter-spacing:.2px}
+.brand small{font-size:9px;color:#b8c4e5;letter-spacing:1.5px}
+.nav-label{font-size:10px;color:#9da9ca;letter-spacing:1.5px;padding:13px 12px}
+.nav-btn{
+ width:100%;border:0;background:transparent;color:#c4cce3;
+ padding:12px;border-radius:10px;text-align:left;margin:3px 0;
+ display:flex;align-items:center;gap:12px;font-size:12px;transition:.2s
+}
+.nav-btn:hover,.nav-btn.active{background:#ffffff20;color:white}
+.nav-btn.active{box-shadow:inset 3px 0 #54d3dd}
+.nav-icon{width:22px;text-align:center;font-size:17px}
+.sidebar-bottom{margin-top:auto;border-top:1px solid #ffffff24;padding:17px 8px 0}
+.sidebar-bottom p{font-size:10px;color:#c0cbe3;line-height:2}
+.status-dot{display:inline-block;width:7px;height:7px;background:#4be0b2;border-radius:50%;margin-right:7px}
+.main{margin-left:250px;padding:27px 34px 40px;max-width:1800px}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:27px;gap:12px}
+.topbar h1{font-size:23px;font-weight:750}
+.topbar p{font-size:12px;color:var(--muted);margin-top:5px}
+.top-right{display:flex;align-items:center;gap:13px}
+.secure-pill{background:#e4f8f1;color:#15966d;padding:9px 13px;border-radius:30px;font-size:10px;font-weight:700}
+.avatar{
+ width:39px;height:39px;border-radius:13px;background:linear-gradient(135deg,#8065e9,#d77bb0);
+ color:white;display:grid;place-items:center;font-weight:750;font-size:13px;
+ box-shadow:0 4px 12px #8065e944
+}
+.mobile-menu{display:none;border:0;background:#e8e9ff;padding:9px 12px;border-radius:9px;color:#6550ca}
+.page{display:none;animation:appear .25s ease}
+.page.active{display:block}
+@keyframes appear{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.grid{display:grid;gap:17px}
+.stats{grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:19px}
+.card{
+ background:var(--white);border:1px solid var(--border);
+ border-radius:16px;padding:20px;box-shadow:var(--shadow)
+}
+.stat-card{position:relative;overflow:hidden;min-height:145px}
+.stat-card:after{
+ content:"";position:absolute;width:95px;height:95px;border-radius:50%;
+ right:-28px;top:-30px;background:var(--bubble)
+}
+.stat-top{display:flex;justify-content:space-between;align-items:center}
+.stat-label{font-size:11px;color:var(--muted);font-weight:600}
+.stat-icon{
+ width:35px;height:35px;border-radius:11px;background:var(--bubble);
+ display:grid;place-items:center;color:var(--accent);font-size:17px
+}
+.stat-value{font-size:30px;font-weight:800;margin:11px 0 5px;color:var(--text)}
+.stat-note{font-size:10px;color:var(--muted)}
+.two-col{grid-template-columns:1.35fr 1fr}
+.card-title{font-size:14px;font-weight:750}
+.card-subtitle{font-size:10px;color:var(--muted);margin-top:5px;margin-bottom:18px}
+.section-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:17px}
+.section-heading h2{font-size:16px}
+.section-heading p{font-size:10px;color:var(--muted);margin-top:5px}
+.activity-list{display:flex;flex-direction:column}
+.activity{display:flex;align-items:center;gap:11px;padding:12px 0;border-bottom:1px solid var(--border);font-size:11px}
+.activity:last-child{border:0}
+.activity-icon{width:34px;height:34px;border-radius:11px;background:#eeeaff;color:var(--purple);display:grid;place-items:center;font-size:16px}
+.activity-info{flex:1;min-width:0}
+.activity-info b{font-size:11px}
+.activity-info small{display:block;color:var(--muted);font-size:9px;margin-top:4px}
+.tag{display:inline-block;padding:5px 9px;border-radius:20px;font-size:9px;font-weight:700;background:#edf0f6;color:#68748c;white-space:nowrap}
+.tag.safe{background:#e2f8ef;color:#14966a}
+.tag.warning{background:#fff3dc;color:#c68a22}
+.tag.danger{background:#ffe8eb;color:#d44c64}
+.chart-bars{height:165px;display:flex;align-items:end;gap:15px;padding:12px 8px 0}
+.bar-wrap{flex:1;text-align:center;height:100%;display:flex;flex-direction:column;justify-content:end}
+.bar{width:100%;max-width:37px;margin:auto auto 0;border-radius:7px 7px 2px 2px;min-height:5px}
+.bar-wrap small{font-size:9px;color:var(--muted);margin-top:8px}
+.panel-heading{margin-bottom:20px}
+.panel-heading h2{font-size:21px}
+.panel-heading p{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.7}
+.field{margin-bottom:17px}
+.field label{display:block;font-size:11px;font-weight:700;margin-bottom:8px}
+.field input,.field textarea{
+ width:100%;border:1px solid var(--border);background:#fafbff;
+ border-radius:9px;padding:12px;color:var(--text);outline:none;font-size:12px
+}
+.field textarea{min-height:150px;resize:vertical;line-height:1.6}
+.field input:focus,.field textarea:focus{border-color:var(--purple);box-shadow:0 0 0 3px #8065e91c}
+.hint{font-size:9px;color:var(--muted);margin-top:7px;line-height:1.6}
+.btn{border:0;border-radius:9px;padding:11px 16px;background:linear-gradient(110deg,var(--purple),var(--blue));color:white;font-size:11px;font-weight:700;transition:.2s}
+.btn:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.btn.secondary{background:#eaeaff;color:#6656c8}
+.btn.outline{background:white;color:#68748c;border:1px solid var(--border)}
+.btn-row{display:flex;gap:9px;flex-wrap:wrap}
+.result{display:none;margin-top:19px;padding:19px;background:#f8f8ff;border:1px solid #e6e4fb;border-radius:12px}
+.result.show{display:block}
+.result-top{display:flex;align-items:center;justify-content:space-between}
+.result h3{font-size:15px}
+.score{font-size:26px;font-weight:800}
+.progress{height:8px;background:#e8eaf2;border-radius:10px;margin:13px 0;overflow:hidden}
+.progress span{display:block;height:100%;width:0;transition:width .4s}
+.finding{padding:10px 0;border-bottom:1px solid var(--border);font-size:11px;line-height:1.6}
+.finding:last-child{border:0}
+.finding b{display:block;margin-bottom:3px}
+.learning-grid{grid-template-columns:repeat(3,1fr)}
+.learn-card{min-height:165px;transition:.2s}
+.learn-card:hover{transform:translateY(-3px);box-shadow:0 12px 25px #4d4d8415}
+.learn-icon{font-size:25px;margin-bottom:13px}
+.learn-card h3{font-size:13px;margin-bottom:8px}
+.learn-card p{font-size:10px;line-height:1.7;color:var(--muted)}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:520px}
+th,td{text-align:left;padding:13px 10px;border-bottom:1px solid var(--border);font-size:10px}
+th{color:var(--muted);font-weight:700}
+.empty{text-align:center;color:var(--muted);padding:27px;font-size:11px}
+.quiz-option{
+ display:block;width:100%;text-align:left;padding:13px;margin:9px 0;
+ border:1px solid var(--border);border-radius:9px;background:white;
+ color:var(--text);font-size:11px;transition:.2s
+}
+.quiz-option:hover,.quiz-option.selected{border-color:var(--purple);background:#f4f1ff}
+.quiz-progress{height:5px;background:#e8eaf2;border-radius:5px;margin:15px 0 22px}
+.quiz-progress span{display:block;height:100%;background:linear-gradient(90deg,var(--purple),var(--cyan));border-radius:5px}
+.footer{text-align:center;font-size:10px;color:#9ba5b8;margin-top:35px;line-height:2}
+@media(max-width:1000px){.stats{grid-template-columns:repeat(2,1fr)}.learning-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:720px){
+ .sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}
+ .main{margin-left:0;padding:20px 14px}
+ .mobile-menu{display:block}.two-col{grid-template-columns:1fr}
+ .secure-pill{display:none}.topbar h1{font-size:18px}
+}
+@media(max-width:460px){.stats,.learning-grid{grid-template-columns:1fr}}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+<aside class="sidebar" id="sidebar">
+ <div class="brand">
+  <div class="logo">P</div>
+  <div><h2>PhishGuard</h2><small>SECURITY PLATFORM</small></div>
+ </div>
+
+ <div class="nav-label">MAIN MENU</div>
+ <button class="nav-btn active" data-page="dashboard"><span class="nav-icon">▦</span> Dashboard</button>
+ <button class="nav-btn" data-page="email"><span class="nav-icon">✉</span> Email Analyzer</button>
+ <button class="nav-btn" data-page="url"><span class="nav-icon">⌁</span> URL Analyzer</button>
+ <button class="nav-btn" data-page="history"><span class="nav-icon">◷</span> Scan History</button>
+
+ <div class="nav-label">LEARNING</div>
+ <button class="nav-btn" data-page="learn"><span class="nav-icon">▤</span> Awareness Guide</button>
+ <button class="nav-btn" data-page="quiz"><span class="nav-icon">✓</span> Knowledge Quiz</button>
+
+ <div class="sidebar-bottom">
+  <p><span class="status-dot"></span> System operational</p>
+  <p>PhishGuard v2.0<br>Designed & Developed by</p>
+  <p style="font-size:14px;color:white;font-weight:800">✦ Mahnoor</p>
+ </div>
+</aside>
+
+<main class="main">
+<header class="topbar">
+ <div style="display:flex;align-items:center;gap:12px">
+  <button class="mobile-menu" id="menuBtn">☰</button>
+  <div>
+   <h1 id="pageTitle">Security Dashboard</h1>
+   <p id="pageDescription">Your phishing awareness and security overview.</p>
+  </div>
+ </div>
+ <div class="top-right">
+  <span class="secure-pill">● Educational Mode</span>
+  <div class="avatar" title="Mahnoor">M</div>
+ </div>
+</header>
+
+<section class="page active" id="dashboard">
+ <div class="grid stats">
+  <div class="card stat-card" style="--bubble:#e8edff;--accent:#567ee9">
+   <div class="stat-top"><span class="stat-label">TOTAL SCANS</span><span class="stat-icon">⌁</span></div>
+   <div class="stat-value" id="totalScans">0</div><div class="stat-note">Email and URL analyses</div>
+  </div>
+  <div class="card stat-card" style="--bubble:#def8ef;--accent:#22a879">
+   <div class="stat-top"><span class="stat-label">LOW RISK</span><span class="stat-icon">✓</span></div>
+   <div class="stat-value" id="safeScans">0</div><div class="stat-note">Fewer warning indicators</div>
+  </div>
+  <div class="card stat-card" style="--bubble:#ffe8ed;--accent:#df607c">
+   <div class="stat-top"><span class="stat-label">HIGH RISK</span><span class="stat-icon">⚠</span></div>
+   <div class="stat-value" id="highScans">0</div><div class="stat-note">Multiple warning indicators</div>
+  </div>
+  <div class="card stat-card" style="--bubble:#fff0df;--accent:#dc9639">
+   <div class="stat-top"><span class="stat-label">QUIZ SCORE</span><span class="stat-icon">◎</span></div>
+   <div class="stat-value" id="quizScore">--</div><div class="stat-note">Latest assessment result</div>
+  </div>
+ </div>
+
+ <div class="grid two-col">
+  <div class="card">
+   <div class="card-title">Analysis Overview</div>
+   <div class="card-subtitle">Recent scan risk scores</div>
+   <div class="chart-bars" id="dashboardChart"><div class="empty">Run an analysis to see activity.</div></div>
+  </div>
+  <div class="card">
+   <div class="card-title">Quick Actions</div>
+   <div class="card-subtitle">Choose a security activity</div>
+   <div class="activity-list">
+    <div class="activity"><div class="activity-icon">✉</div><div class="activity-info"><b>Email Analyzer</b><small>Inspect suspicious email text</small></div><button class="btn secondary" onclick="showPage('email')">Open</button></div>
+    <div class="activity"><div class="activity-icon" style="background:#e3f8f8;color:#1ca8ae">⌁</div><div class="activity-info"><b>URL Analyzer</b><small>Review website addresses</small></div><button class="btn secondary" onclick="showPage('url')">Open</button></div>
+    <div class="activity"><div class="activity-icon" style="background:#fff0e3;color:#dc9639">✓</div><div class="activity-info"><b>Knowledge Quiz</b><small>Test your awareness</small></div><button class="btn secondary" onclick="showPage('quiz')">Start</button></div>
+   </div>
+  </div>
+ </div>
+
+ <div class="card" style="margin-top:18px">
+  <div class="section-heading"><div><h2>Recent Activity</h2><p>Your latest analysis records</p></div><button class="btn outline" onclick="showPage('history')">View History</button></div>
+  <div id="recentActivity" class="activity-list"><div class="empty">No analysis performed yet.</div></div>
+ </div>
+</section>
+
+<section class="page" id="email">
+ <div class="panel-heading"><h2>Email Threat Analyzer</h2><p>Inspect email content for common phishing indicators using local, rule-based analysis.</p></div>
+ <div class="card">
+  <div class="field"><label>Email Subject</label><input id="emailSubject" placeholder="Example: Urgent: Your account requires verification"></div>
+  <div class="field"><label>Sender Email Address</label><input id="emailSender" placeholder="Example: support@example.com"></div>
+  <div class="field"><label>Email Message</label><textarea id="emailBody" placeholder="Paste email text here for educational analysis..."></textarea><p class="hint">Do not paste passwords, private information, or confidential messages.</p></div>
+  <div class="btn-row">
+   <button class="btn" onclick="analyzeEmail()">Analyze Email</button>
+   <button class="btn secondary" onclick="loadEmailExample()">Load Demo</button>
+   <button class="btn outline" onclick="clearEmail()">Clear</button>
+  </div>
+  <div class="result" id="emailResult"></div>
+ </div>
+</section>
+
+<section class="page" id="url">
+ <div class="panel-heading"><h2>URL Risk Analyzer</h2><p>Evaluate website address structure for common suspicious patterns without visiting the submitted website.</p></div>
+ <div class="card">
+  <div class="field"><label>Website URL</label><input id="urlInput" placeholder="https://example.com"><p class="hint">This analyzer does not open the URL or contact external services.</p></div>
+  <div class="btn-row">
+   <button class="btn" onclick="analyzeURL()">Analyze URL</button>
+   <button class="btn secondary" onclick="document.getElementById('urlInput').value='http://secure-account-verification.example-login.com/update?id=12345'">Load Demo</button>
+   <button class="btn outline" onclick="document.getElementById('urlInput').value='';document.getElementById('urlResult').classList.remove('show')">Clear</button>
+  </div>
+  <div class="result" id="urlResult"></div>
+ </div>
+</section>
+
+<section class="page" id="history">
+ <div class="panel-heading"><h2>Analysis History</h2><p>Review your locally stored email and URL analysis sessions.</p></div>
+ <div class="card">
+  <div class="section-heading">
+   <div><h2>Scan Records</h2><p>Stored in this browser</p></div>
+   <div class="btn-row"><button class="btn secondary" onclick="exportHistory()">Export JSON</button><button class="btn outline" onclick="clearHistory()">Clear</button></div>
+  </div>
+  <div class="table-wrap"><table>
+   <thead><tr><th>TYPE</th><th>SUBJECT / URL</th><th>RISK</th><th>SCORE</th><th>DATE</th></tr></thead>
+   <tbody id="historyBody"><tr><td colspan="5" class="empty">No records available.</td></tr></tbody>
+  </table></div>
+ </div>
+</section>
+
+<section class="page" id="learn">
+ <div class="panel-heading"><h2>Phishing Awareness Center</h2><p>Learn about common cyber threats, social engineering, and safe online practices.</p></div>
+ <div class="grid learning-grid">
+  <div class="card learn-card"><div class="learn-icon">🎣</div><h3>Phishing</h3><p>Fraudulent messages designed to trick people into sharing sensitive information or interacting with unsafe links.</p></div>
+  <div class="card learn-card"><div class="learn-icon">🎯</div><h3>Spear Phishing</h3><p>A targeted attack using personal or organizational information to make a deceptive message appear trustworthy.</p></div>
+  <div class="card learn-card"><div class="learn-icon">📱</div><h3>Smishing</h3><p>Phishing attempts delivered through SMS or messaging applications.</p></div>
+  <div class="card learn-card"><div class="learn-icon">☎️</div><h3>Vishing</h3><p>Voice-based social engineering involving impersonation of trusted organizations or representatives.</p></div>
+  <div class="card learn-card"><div class="learn-icon">🧠</div><h3>Social Engineering</h3><p>Manipulating emotions such as fear, urgency, curiosity, or trust to influence decisions.</p></div>
+  <div class="card learn-card"><div class="learn-icon">🌐</div><h3>Fake Websites</h3><p>Lookalike websites designed to imitate legitimate services and collect sensitive information.</p></div>
+ </div>
+ <div class="card" style="margin-top:18px">
+  <div class="card-title">Common Warning Signs</div>
+  <div class="activity-list">
+   <div class="activity"><span class="tag danger">01</span><div class="activity-info"><b>Unexpected urgency</b><small>Messages demanding immediate action or threatening account suspension.</small></div></div>
+   <div class="activity"><span class="tag warning">02</span><div class="activity-info"><b>Suspicious sender</b><small>Addresses that imitate official domains or contain unusual spelling.</small></div></div>
+   <div class="activity"><span class="tag warning">03</span><div class="activity-info"><b>Unexpected attachments</b><small>Files you were not expecting, especially from unknown senders.</small></div></div>
+   <div class="activity"><span class="tag danger">04</span><div class="activity-info"><b>Requests for credentials</b><small>Messages asking for passwords, verification codes, or payment details.</small></div></div>
+   <div class="activity"><span class="tag warning">05</span><div class="activity-info"><b>Unusual links</b><small>Unexpected links or domains that do not match the claimed organization.</small></div></div>
+  </div>
+ </div>
+ <div class="card" style="margin-top:18px">
+  <div class="card-title">Recommended Security Practices</div>
+  <div class="activity-list">
+   <div class="activity"><span class="green">✓</span><div class="activity-info"><b>Verify independently</b><small>Visit official websites using a known address.</small></div></div>
+   <div class="activity"><span class="green">✓</span><div class="activity-info"><b>Enable MFA</b><small>Add another verification factor to your accounts.</small></div></div>
+   <div class="activity"><span class="green">✓</span><div class="activity-info"><b>Protect verification codes</b><small>Never share one-time authentication codes.</small></div></div>
+   <div class="activity"><span class="green">✓</span><div class="activity-info"><b>Report suspicious messages</b><small>Use your organization's official reporting process.</small></div></div>
+  </div>
+ </div>
+</section>
+
+<section class="page" id="quiz">
+ <div class="panel-heading"><h2>Knowledge Assessment</h2><p>Evaluate your understanding of phishing, social engineering, and online safety.</p></div>
+ <div class="card" style="max-width:760px;margin:auto">
+  <div class="section-heading"><div><h2>Phishing Security Quiz</h2><p>10 questions · Automatic scoring</p></div><span class="tag">Assessment</span></div>
+  <div class="quiz-progress"><span id="quizProgress" style="width:10%"></span></div>
+  <div id="quizArea"></div>
+ </div>
+</section>
+
+<div class="footer">
+ <b>PHISHGUARD © 2026</b><br>
+ Designed & Developed by <b style="color:#8065e9">Mahnoor</b><br>
+ Educational Phishing Awareness Platform · Client-side heuristic analysis
+</div>
+</main>
+</div>
+
+<script>
+const pageInfo={
+ dashboard:["Security Dashboard","Your phishing awareness and security overview."],
+ email:["Email Threat Analyzer","Inspect suspicious email content."],
+ url:["URL Risk Analyzer","Review suspicious website addresses."],
+ history:["Analysis History","Review your previous analysis sessions."],
+ learn:["Phishing Awareness Center","Learn about phishing threats and security practices."],
+ quiz:["Knowledge Assessment","Evaluate your phishing awareness knowledge."]
+};
+
+function showPage(id){
+ document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+ document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
+ document.getElementById(id).classList.add("active");
+ const nav=document.querySelector(`[data-page="${id}"]`);
+ if(nav)nav.classList.add("active");
+ document.getElementById("pageTitle").textContent=pageInfo[id][0];
+ document.getElementById("pageDescription").textContent=pageInfo[id][1];
+ document.getElementById("sidebar").classList.remove("open");
+ if(id==="history")renderHistory();
+ if(id==="dashboard")updateDashboard();
+}
+document.querySelectorAll(".nav-btn").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.page)));
+document.getElementById("menuBtn").addEventListener("click",()=>document.getElementById("sidebar").classList.toggle("open"));
+
+function getHistory(){
+ try{return JSON.parse(localStorage.getItem("phishguard_history"))||[]}
+ catch{return []}
+}
+function saveHistory(item){
+ let records=getHistory();records.unshift(item);
+ localStorage.setItem("phishguard_history",JSON.stringify(records.slice(0,100)));
+ updateDashboard();
+}
+function getDate(){return new Date().toLocaleString()}
+function riskLabel(s){return s>=65?"High Risk":s>=35?"Medium Risk":"Low Risk"}
+function riskClass(s){return s>=65?"danger":s>=35?"warning":"safe"}
+function escapeHTML(v){
+ return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+function displayResult(el,score,findings){
+ const label=riskLabel(score);
+ const color=score>=65?"#e76876":score>=35?"#f3a64b":"#25b88a";
+ el.innerHTML=`
+ <div class="result-top"><div><h3>Analysis Result</h3><p class="hint">Rule-based educational assessment</p></div><div class="score" style="color:${color}">${score}/100</div></div>
+ <div class="progress"><span style="width:${score}%;background:${color}"></span></div>
+ <span class="tag ${riskClass(score)}">${label}</span>
+ <div style="margin-top:14px">${findings.map(f=>`<div class="finding"><b>${escapeHTML(f.title)}</b><span style="color:#8290a8">${escapeHTML(f.detail)}</span></div>`).join("")}</div>
+ <p class="hint">This is an educational estimate, not a confirmed security verdict. A low score does not guarantee safety.</p>`;
+ el.classList.add("show");
+}
+
+const emailRules=[
+ {name:"Urgent language",terms:["urgent","immediately","act now","within 24 hours","suspended","final warning"],points:15,detail:"Urgency or threats may pressure recipients into acting without verification."},
+ {name:"Credential request",terms:["password","login details","verify your account","one time password","otp","security code"],points:25,detail:"Requests for credentials or authentication codes need careful verification."},
+ {name:"Financial request",terms:["bank account","payment","refund","transfer money","credit card","billing information"],points:20,detail:"Unexpected financial requests can be used in phishing attempts."},
+ {name:"Suspicious link language",terms:["click here","open this link","claim your prize","verify now","download attachment"],points:15,detail:"Unexpected links or attachment instructions should be verified."},
+ {name:"Reward or threat language",terms:["you have won","free gift","prize","account blocked","legal action"],points:15,detail:"Unusual rewards or threats can manipulate decisions."}
+];
+
+function analyzeEmail(){
+ const subject=document.getElementById("emailSubject").value.trim();
+ const sender=document.getElementById("emailSender").value.trim();
+ const body=document.getElementById("emailBody").value.trim();
+ if(!subject&&!sender&&!body){alert("Please enter email information.");return}
+ let score=0,findings=[];
+ const text=(subject+" "+body).toLowerCase();
+ emailRules.forEach(rule=>{
+  const matches=rule.terms.filter(t=>text.includes(t));
+  if(matches.length){score+=rule.points;findings.push({title:rule.name,detail:rule.detail+" Matched: "+matches.join(", ")});}
+ });
+ if(sender){
+  const valid=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(sender);
+  if(!valid){score+=10;findings.push({title:"Unusual sender format",detail:"The sender address does not match a typical email format."});}
+  else if(/(gmail|yahoo|outlook|hotmail)\.com$/i.test(sender.split("@")[1])&&/(bank|university|official|support|security)/i.test(subject)){
+   score+=15;findings.push({title:"Sender identity needs verification",detail:"A generic email provider is paired with an official-sounding subject. This is not proof of phishing."});
+  }
+ }
+ score=Math.min(score,100);
+ if(!findings.length)findings.push({title:"No configured warning phrase detected",detail:"The rules found no common warning phrases. This does not prove the email is legitimate."});
+ displayResult(document.getElementById("emailResult"),score,findings);
+ saveHistory({type:"Email",subject:subject||"Untitled email",score,label:riskLabel(score),date:getDate()});
+}
+function loadEmailExample(){
+ document.getElementById("emailSubject").value="URGENT: Your account will be suspended";
+ document.getElementById("emailSender").value="security-alert@example-login.com";
+ document.getElementById("emailBody").value="Dear Customer,\n\nYour account will be suspended within 24 hours. Please click here to verify your account and confirm your password immediately.\n\nFailure to act now may result in account blocked status.\n\nThank you,\nAccount Security Team";
+}
+function clearEmail(){
+ ["emailSubject","emailSender","emailBody"].forEach(id=>document.getElementById(id).value="");
+ document.getElementById("emailResult").classList.remove("show");
+}
+
+function analyzeURL(){
+ const input=document.getElementById("urlInput").value.trim();
+ if(!input){alert("Please enter a URL.");return}
+ let parsed;
+ try{
+  parsed=new URL(input.includes("://")?input:"https://"+input);
+  if(!["http:","https:"].includes(parsed.protocol))throw new Error();
+ }catch{alert("Please enter a valid HTTP or HTTPS URL.");return}
+ let score=0,findings=[];
+ const host=parsed.hostname.toLowerCase(),full=parsed.href.toLowerCase();
+ function flag(title,detail,points){score+=points;findings.push({title,detail})}
+ if(parsed.protocol==="http:")flag("Unencrypted HTTP","The URL does not use HTTPS.",15);
+ if(host.startsWith("xn--")||host.includes(".xn--"))flag("Internationalized domain pattern","Punycode can sometimes be used to imitate familiar domains.",25);
+ if((host.match(/\./g)||[]).length>=4)flag("Nested subdomains","Multiple subdomains can make the actual domain harder to identify.",15);
+ if(parsed.username||parsed.password)flag("Unusual URL credentials","The URL contains an unusual credential pattern.",25);
+ if(host.split(".")[0].length>25)flag("Long hostname","An unusually long hostname deserves closer inspection.",10);
+ if(/login|verify|secure|account|update|confirm|password|banking/i.test(host))flag("Sensitive-looking hostname terms","The hostname contains terms commonly used in account-related lures.",15);
+ if((full.match(/-/g)||[]).length>=4)flag("Multiple hyphens","A large number of hyphens can make a domain confusing.",10);
+ if(parsed.search.length>70)flag("Long query string","A long query string deserves careful review.",10);
+ if(!findings.length)findings.push({title:"No configured URL warning pattern detected",detail:"The URL passed these basic checks. This is not a guarantee of safety."});
+ score=Math.min(score,100);
+ displayResult(document.getElementById("urlResult"),score,findings);
+ saveHistory({type:"URL",subject:parsed.hostname,score,label:riskLabel(score),date:getDate()});
+}
+
+function renderHistory(){
+ const records=getHistory(),body=document.getElementById("historyBody");
+ if(!records.length){body.innerHTML='<tr><td colspan="5" class="empty">No records available.</td></tr>';return}
+ body.innerHTML=records.map(r=>`<tr><td>${escapeHTML(r.type)}</td><td>${escapeHTML(r.subject)}</td><td><span class="tag ${riskClass(r.score)}">${escapeHTML(r.label)}</span></td><td>${r.score}/100</td><td>${escapeHTML(r.date)}</td></tr>`).join("");
+}
+function updateDashboard(){
+ const records=getHistory();
+ document.getElementById("totalScans").textContent=records.length;
+ document.getElementById("safeScans").textContent=records.filter(r=>r.score<35).length;
+ document.getElementById("highScans").textContent=records.filter(r=>r.score>=65).length;
+ const latest=localStorage.getItem("phishguard_quiz_score");
+ document.getElementById("quizScore").textContent=latest===null?"--":latest+"%";
+ document.getElementById("recentActivity").innerHTML=records.length?records.slice(0,4).map(r=>`<div class="activity"><div class="activity-icon">${r.type==="Email"?"✉":"⌁"}</div><div class="activity-info"><b>${escapeHTML(r.subject)}</b><small>${escapeHTML(r.date)}</small></div><span class="tag ${riskClass(r.score)}">${escapeHTML(r.label)}</span></div>`).join(""):'<div class="empty">No analysis performed yet.</div>';
+ const chart=document.getElementById("dashboardChart");
+ chart.innerHTML=records.length?records.slice(0,7).reverse().map((r,i)=>`<div class="bar-wrap"><div class="bar" style="height:${Math.max(8,r.score)}%;background:${r.score>=65?"linear-gradient(#e875a8,#d44c64)":r.score>=35?"linear-gradient(#f3bd66,#e59a36)":"linear-gradient(#42d0ad,#20a27c)"}"></div><small>${i+1}</small></div>`).join(""):'<div class="empty">Run an analysis to see activity.</div>';
+}
+function clearHistory(){
+ if(confirm("Delete all scan records?")){localStorage.removeItem("phishguard_history");renderHistory();updateDashboard()}
+}
+function exportHistory(){
+ const data=getHistory();if(!data.length){alert("No records to export.");return}
+ const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+ const url=URL.createObjectURL(blob),a=document.createElement("a");
+ a.href=url;a.download="phishguard-mahnoor-report.json";a.click();URL.revokeObjectURL(url);
+}
+
+const questions=[
+ {q:"What is the primary purpose of a phishing attack?",o:["Improve website performance","Steal information through deception","Update antivirus software","Encrypt personal files"],a:1,e:"Phishing uses deceptive communication to trick people into revealing information or taking unsafe actions."},
+ {q:"Which action is safest with an unexpected verification email?",o:["Click its link","Reply with your password","Visit the official website independently","Forward it to everyone"],a:2,e:"Use a known official website or contact channel instead of an unexpected link."},
+ {q:"What is spear phishing?",o:["A targeted phishing attack","An antivirus","A secure email protocol","A backup method"],a:0,e:"Spear phishing targets a particular person or organization using tailored information."},
+ {q:"What does MFA stand for?",o:["Multiple File Access","Multi-Factor Authentication","Main Firewall Application","Managed File Authorization"],a:1,e:"MFA adds another verification factor to account access."},
+ {q:"What is smishing?",o:["Phishing through SMS","Phishing through voice calls","A computer virus","A firewall configuration"],a:0,e:"Smishing is phishing delivered through text messages."},
+ {q:"Why inspect a URL before visiting?",o:["Increase internet speed","Identify suspicious domain patterns","Remove advertisements","Change IP address"],a:1,e:"Examining a URL can reveal misspellings, misleading subdomains, or unusual patterns."},
+ {q:"Which is an example of social engineering?",o:["Updating software","Manipulating someone through urgency or fear","Backing up files","Using encryption"],a:1,e:"Social engineering manipulates human behavior."},
+ {q:"What should you do with an unexpected attachment?",o:["Open it immediately","Download it everywhere","Verify the sender and context first","Disable antivirus"],a:2,e:"Verify the sender and whether the attachment was expected before opening it."},
+ {q:"Does HTTPS guarantee a website is legitimate?",o:["Yes, always","No, HTTPS alone does not prove legitimacy","Only on mobile","Only for banks"],a:1,e:"HTTPS encrypts a connection, but phishing websites can also use HTTPS."},
+ {q:"What is the best response to a suspicious message?",o:["Share it with friends","Provide requested information","Report it through an official channel","Click every link"],a:2,e:"Report suspicious messages through your organization's or provider's official process."}
+];
+
+let qi=0,answers=[];
+function renderQuiz(){
+ const area=document.getElementById("quizArea");
+ if(qi>=questions.length){showQuizResult();return}
+ const q=questions[qi];
+ area.innerHTML=`
+ <div style="display:flex;justify-content:space-between;font-size:10px;color:#8290a8"><span>QUESTION ${qi+1} OF ${questions.length}</span><span>${Math.round(qi/questions.length*100)}% COMPLETED</span></div>
+ <h3 style="font-size:16px;line-height:1.6;margin:20px 0">${q.q}</h3>
+ <div>${q.o.map((v,i)=>`<button class="quiz-option ${answers[qi]===i?"selected":""}" onclick="selectAnswer(${i})"><b style="color:#8065e9;margin-right:9px">${String.fromCharCode(65+i)}.</b>${v}</button>`).join("")}</div>
+ <div id="quizFeedback" class="hint"></div>
+ <div class="btn-row" style="justify-content:space-between;margin-top:18px"><button class="btn secondary" onclick="previousQuestion()" ${qi===0?"disabled":""}>Previous</button><button class="btn" onclick="nextQuestion()">${qi===9?"Submit Assessment":"Next Question"}</button></div>`;
+ document.getElementById("quizProgress").style.width=((qi+1)/questions.length*100)+"%";
+}
+function selectAnswer(i){
+ answers[qi]=i;
+ document.querySelectorAll(".quiz-option").forEach((b,j)=>b.classList.toggle("selected",i===j));
+}
+function nextQuestion(){
+ if(answers[qi]===undefined){const f=document.getElementById("quizFeedback");f.textContent="Please select an answer first.";f.style.color="#d39432";return}
+ if(qi<9){qi++;renderQuiz()}else showQuizResult();
+}
+function previousQuestion(){if(qi>0){qi--;renderQuiz()}}
+function showQuizResult(){
+ const correct=questions.filter((q,i)=>answers[i]===q.a).length;
+ const percent=Math.round(correct/10*100);
+ localStorage.setItem("phishguard_quiz_score",percent);updateDashboard();
+ document.getElementById("quizProgress").style.width="100%";
+ document.getElementById("quizArea").innerHTML=`
+ <div style="text-align:center;padding:20px 3px">
+ <div style="font-size:42px;margin-bottom:12px">${percent>=70?"🏆":"📘"}</div>
+ <h2>Assessment Completed!</h2>
+ <div style="font-size:43px;color:#8065e9;font-weight:850;margin:16px">${percent}%</div>
+ <p style="font-size:11px;color:#8290a8">You answered ${correct} out of 10 questions correctly.</p>
+ <div style="margin:22px 0;text-align:left">
+ ${questions.map((q,i)=>`<div class="finding"><b>${i+1}. ${escapeHTML(q.q)}</b><span style="color:${answers[i]===q.a?"#15966a":"#d44c64"}">Your answer: ${escapeHTML(q.o[answers[i]])}</span><br><span style="color:#8290a8">Correct answer: ${escapeHTML(q.o[q.a])}. ${escapeHTML(q.e)}</span></div>`).join("")}
+ </div>
+ <button class="btn" onclick="restartQuiz()">Retake Assessment</button></div>`;
+}
+function restartQuiz(){qi=0;answers=[];renderQuiz()}
+
+renderQuiz();
+updateDashboard();
+</script>
+</body>
+</html>
